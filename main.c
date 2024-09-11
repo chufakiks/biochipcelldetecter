@@ -26,6 +26,15 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
+  void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+      for (int x = 0; x < BMP_WIDTH; x++) {
+          for (int y = 0; y < BMP_HEIGTH; y++) {
+            unsigned char r = input_image[x][y][0];
+            unsigned char g = input_image[x][y][1];
+            unsigned char b = input_image[x][y][2];
+            }
+      }
+    }
 //Main function
 int main(int argc, char** argv)
 {
