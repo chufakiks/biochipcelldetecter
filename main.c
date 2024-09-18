@@ -27,14 +27,23 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
   void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+
+    int thfb = 90;  // Sätt konstantvärden utanför loopen
+    unsigned char r, g, b;  // Deklarera färgvariablerna utanför loopen
+    unsigned char grey_value; 
+
       for (int x = 0; x < BMP_WIDTH; x++) { //go through each x then y
           for (int y = 0; y < BMP_HEIGTH; y++) {
-            unsigned char r = (int) input_image[x][y][0]; //read each coulor value
-            unsigned char g = (int) input_image[x][y][1];
-            unsigned char b = (int) input_image[x][y][2];
+            r = input_image[x][y][0]; //read each coulor value
+            g = input_image[x][y][1];
+            b = input_image[x][y][2];
 
-            int grey_value = (r + g + b) / 3; //calculate grey value
+            grey_value = (r + g + b) / 3; //calculate grey value
 
+            if (grey_value <= thfb) 
+              *output_image[x][y] = 0; //svart
+            else
+              *output_image[x][y] = 255; //vit
           }
       }
     }
