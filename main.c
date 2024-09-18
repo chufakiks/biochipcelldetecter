@@ -38,12 +38,12 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
             g = input_image[x][y][1];
             b = input_image[x][y][2];
 
-            grey_value = (r + g + b) / 3; //calculate grey value
+            grey_value = (r + g + b) / 3; //calculate grey value #2
 
-            if (grey_value <= thfb) 
-              *output_image[x][y] = 0; //svart
+            if (grey_value <= thfb)  //  #3
+              *output_image[x][y] = 0; //black
             else
-              *output_image[x][y] = 255; //vit
+              *output_image[x][y] = 255; //white
           }
       }
     }
@@ -73,6 +73,29 @@ int main(int argc, char** argv)
   //Save image to file
   write_bitmap(output_image, argv[2]);
 
+  void erosionOpt (){
+      for (int i = 0; i < ((BMP_HEIGTH-0)/2); i++){
+        for(int j = i; j < BMP_WIDTH - i; j++){
+          if()
+        }
+        for(int j = i; j < BMP_HEIGTH - i; j++){
+          
+        }
+        for(int j = (BMP_WIDTH - 1) - i; j => 0 + i; j++){
+          
+        }
+         for(int j = (BMP_HEIGTH - 1)- i; j => 0 + i; j++){
+          
+        }
+        if (checkList.length > 0){
+          cellDetectionOpt();
+        }
+        
+      }
+  }
+  void cellDetectionOpt(){
+
+  }
   printf("Done!\n");
   return 0;
 }
