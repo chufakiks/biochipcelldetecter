@@ -47,6 +47,31 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
           }
       }
     }
+  
+void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
+  for (int x = 0; x < BMP_WIDTH; x++){
+    for (int y = 0; y < BMP_HEIGTH; y++) {
+
+      *output[x][y] = *input[x][y];
+
+      if (*input[x][y] == 255) {
+
+        for (int i = -1; i <= 1; i++) { //look at 3x3 neighburs
+          for (int j = -1; j <= 1; j++) {
+
+            if (*input[x+i][y+j] == 0) {
+              *input[x][y] = 0;
+              break;
+            }
+        }
+      }
+    }
+     else {
+       break; //keep black and move on to next cell
+     }
+    }
+  }
+}
 //Main function
 int main(int argc, char** argv)
 {
@@ -72,6 +97,8 @@ int main(int argc, char** argv)
 
   //Save image to file
   write_bitmap(output_image, argv[2]);
+
+  
 
   printf("Done!\n");
   return 0;
