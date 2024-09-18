@@ -27,12 +27,15 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
   void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
-      for (int x = 0; x < BMP_WIDTH; x++) {
+      for (int x = 0; x < BMP_WIDTH; x++) { //go through each x then y
           for (int y = 0; y < BMP_HEIGTH; y++) {
-            unsigned char r = input_image[x][y][0];
-            unsigned char g = input_image[x][y][1];
-            unsigned char b = input_image[x][y][2];
-            }
+            unsigned char r = (int) input_image[x][y][0]; //read each coulor value
+            unsigned char g = (int) input_image[x][y][1];
+            unsigned char b = (int) input_image[x][y][2];
+
+            int grey_value = (r + g + b) / 3; //calculate grey value
+
+          }
       }
     }
 //Main function
