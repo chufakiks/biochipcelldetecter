@@ -92,14 +92,26 @@ int main(int argc, char** argv)
   //Load image from file
   read_bitmap(argv[1], input_image);
 
+  int iterations = 5;
+  for (int i = 0; i < iterations; i++) {
+    if (i%2 == 0) {
+      erode(input_image, output_image);
+    } else {
+      erode(output_image, input_image);
+    }
+  }
+  if (iterations % 2 == 0) {
+    write_bitmap(output_image, argv[2]);
+  } else {
+    write_bitmap(input_image, argv[2]);
+  }
   //Run inversion
   invert(input_image,output_image);
 
   //Save image to file
-  write_bitmap(output_image, argv[2]);
-
-  
+  //write_bitmap(output_image, argv[2]);
 
   printf("Done!\n");
   return 0;
-}
+};
+ 
