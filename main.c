@@ -9,6 +9,27 @@
 #include <stdio.h>
 
 
+  //helper to visualize erosion
+  unsigned char** forimagereader (unsigned char output[BMP_WIDTH][BMP_HEIGTH]){
+    unsigned char*** array = malloc(BMP_WIDTH * sizeof(unsigned char**));
+    for (int i = 0; i < BMP_WIDTH; i++) {
+        array[i] = malloc(BMP_WIDTH * sizeof(unsigned char*));
+        for (int j = 0; j < BMP_HEIGTH; j++) {
+            array[i][j] = malloc(3 * sizeof(unsigned char));
+        }
+    }
+
+    for (int i = 0; i < BMP_WIDTH; i++) {
+      for (int j = 0; j < BMP_HEIGTH; j++){
+        array[i][j][0]= output[i][j];
+        array[i][j][1]= output[i][j];
+        array[i][j][2]= output[i][j];
+      }
+    }
+    return array;
+  }
+
+
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
   unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -40,7 +61,7 @@
       return output_image;
     }
   
-/*void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
+void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
   for (int x = 0; x < BMP_WIDTH; x++){
     for (int y = 0; y < BMP_HEIGTH; y++) {
 
@@ -63,7 +84,8 @@
      }
     }
   }
-}*/
+}
+
 //Main function
 int main(int argc, char** argv)
 {
@@ -86,22 +108,25 @@ int main(int argc, char** argv)
 
   unsigned char** output_image = convertToGrey(input_image);
 
-  /*int iterations = 5;
+
+  unsigned char** outputparsed;
+  int iterations = 5;
   for (int i = 0; i < iterations; i++) {
     if (i%2 == 0) {
-      erode(input_image, output_image_grey);
+      erode(input_image, output_image);
     } else {
-      erode(output_image_grey, input_image);
+      erode(output_image, input_image);
     }
   }
   if (iterations % 2 == 0) {
+    outputparsed = forimagereader(output_image);
     write_bitmap(output_image, argv[2]);
   } else {
     write_bitmap(input_image, argv[2]);
-  }*/
+  }
 
   //Save image to file
-  //write_bitmap(output_image, argv[2]);
+  write_bitmap(outputparsed, argv[2]);
 
   printf("Done!\n");
   return 0;
