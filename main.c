@@ -4,29 +4,20 @@
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
 //To run (win): main.exe example.bmp example_inv.bmp
 
+#include "cbmp.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "cbmp.h"
 
-//Function to invert pixels of an image (negative)
-void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      for (int c = 0; c < BMP_CHANNELS; c++)
-      {
-      output_image[x][y][c] = 255 - input_image[x][y][c];
-      }
-    }
-  }
-}
 
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
   unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
-  void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+  unsigned char** convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+  unsigned char** output_image = (unsigned char**)malloc(BMP_WIDTH * sizeof(unsigned char*));
+  for (int i = 0; i < BMP_WIDTH; i++) {
+        output_image[i] = (unsigned char*)malloc(BMP_HEIGTH * sizeof(unsigned char));
+    }
 
     int thfb = 90;  // Sätt konstantvärden utanför loopen
     unsigned char r, g, b;  // Deklarera färgvariablerna utanför loopen
@@ -41,14 +32,15 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
             grey_value = (r + g + b) / 3; //calculate grey value
 
             if (grey_value <= thfb) 
-              *output_image[x][y] = 0; //svart
+              output_image[x][y] = 0; //svart
             else
-              *output_image[x][y] = 255; //vit
+              output_image[x][y] = 255; //vit
           }
       }
+      return output_image;
     }
   
-void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
+/*void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
   for (int x = 0; x < BMP_WIDTH; x++){
     for (int y = 0; y < BMP_HEIGTH; y++) {
 
@@ -71,7 +63,7 @@ void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BM
      }
     }
   }
-}
+}*/
 //Main function
 int main(int argc, char** argv)
 {
@@ -89,29 +81,32 @@ int main(int argc, char** argv)
 
   printf("Example program - 02132 - A1\n");
 
-  //Load image from file
+  //Load image from filey
   read_bitmap(argv[1], input_image);
 
-  int iterations = 5;
+  unsigned char** output_image = convertToGrey(input_image);
+
+  /*int iterations = 5;
   for (int i = 0; i < iterations; i++) {
     if (i%2 == 0) {
-      erode(input_image, output_image);
+      erode(input_image, output_image_grey);
     } else {
-      erode(output_image, input_image);
+      erode(output_image_grey, input_image);
     }
   }
   if (iterations % 2 == 0) {
     write_bitmap(output_image, argv[2]);
   } else {
     write_bitmap(input_image, argv[2]);
-  }
-  //Run inversion
-  invert(input_image,output_image);
+  }*/
 
   //Save image to file
   //write_bitmap(output_image, argv[2]);
 
   printf("Done!\n");
   return 0;
+
+  
+  
 };
  
