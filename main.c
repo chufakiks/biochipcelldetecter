@@ -73,27 +73,37 @@ int main(int argc, char** argv)
   //Save image to file
   write_bitmap(output_image, argv[2]);
 
-  void erosionOpt (){
-      for (int i = 0; i < ((BMP_HEIGTH-0)/2); i++){
+  void erosionOtp (char* input[BMP_WIDTH][BMP_HEIGTH], char* output[BMP_WIDTH][BMP_HEIGTH]) {
+       for (int i = 0; i < ((BMP_HEIGTH-0)/2); i++){
         for(int j = i; j < BMP_WIDTH - i; j++){
-          if()
+          if(*input[j][0] == 255){
+            // add to cellDetected
+          }
+          
         }
         for(int j = i; j < BMP_HEIGTH - i; j++){
-          
+          i++;
         }
-        for(int j = (BMP_WIDTH - 1) - i; j => 0 + i; j++){
-          
+        for(int j = (BMP_WIDTH - 1) - i; j >= 0 + i; j--){
+          i++;
         }
-         for(int j = (BMP_HEIGTH - 1)- i; j => 0 + i; j++){
-          
+         for(int j = (BMP_HEIGTH - 1)- i; j >= 0 + i; j--){
+          i++;
+         }
+          cellDetectionOpt(input, output, foundCell);
         }
-        if (checkList.length > 0){
-          cellDetectionOpt();
-        }
-        
-      }
   }
-  void cellDetectionOpt(){
+  
+  void cellDetectionOpt(char* input[BMP_WIDTH][BMP_HEIGTH], char* output[BMP_WIDTH][BMP_HEIGTH],
+                        int* foundCell){
+    if (foundCell){
+      foundCell = 0;
+
+    } 
+    erosionOtp(output, input);
+    
+  }
+  void findGridSize(){
 
   }
   printf("Done!\n");
