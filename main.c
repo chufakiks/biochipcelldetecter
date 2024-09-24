@@ -25,6 +25,8 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
   unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
   unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char dualIm[BMP_WIDTH][BMP_HEIGTH];
+  unsigned char erode[BMP_WIDTH][BMP_HEIGTH];
 
   void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
 
@@ -73,38 +75,48 @@ int main(int argc, char** argv)
   //Save image to file
   write_bitmap(output_image, argv[2]);
 
-  void erosionOtp (char* input[BMP_WIDTH][BMP_HEIGTH], char* output[BMP_WIDTH][BMP_HEIGTH]) {
+  void erosionOtp (unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]) {
        for (int i = 0; i < ((BMP_HEIGTH-0)/2); i++){
         for(int j = i; j < BMP_WIDTH - i; j++){
           if(*input[j][0] == 255){
             // add to cellDetected
           }
-          
         }
         for(int j = i; j < BMP_HEIGTH - i; j++){
-          i++;
+          if(*input[j][0] == 255){
+            // add to cellDetected
+          }
         }
         for(int j = (BMP_WIDTH - 1) - i; j >= 0 + i; j--){
-          i++;
+          if(*input[j][0] == 255){
+            // add to cellDetected
+          }
         }
          for(int j = (BMP_HEIGTH - 1)- i; j >= 0 + i; j--){
-          i++;
+          if(*input[j][0] == 255){
+            // add to cellDetected
+          }
          }
           cellDetectionOpt(input, output, foundCell);
         }
   }
-  
-  void cellDetectionOpt(char* input[BMP_WIDTH][BMP_HEIGTH], char* output[BMP_WIDTH][BMP_HEIGTH],
-                        int* foundCell){
-    if (foundCell){
+  void cellDetectionOpt(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH],
+                        unsigned char* foundCell){
+    if (foundCell.lenght() > 0){
+      for (int i = 0; i < foundCell.lenght(); i++){
+        if (*input[x][y] == 255){
+          findGrindSize()
+        }
       foundCell = 0;
-
+     } 
     } 
+    
     erosionOtp(output, input);
     
   }
-  void findGridSize(){
+  short int[] findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH]){
 
+    // Return er et char array, hvor index 0 er min_x, index 1 er max_x, index 2 er min_y og index 3 er max_y
   }
   printf("Done!\n");
   return 0;
