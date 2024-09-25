@@ -106,8 +106,6 @@ int main(int argc, char** argv)
   //Load image from filey
   read_bitmap(argv[1], input_image);
 
-  //Run inversion
-  invert(input_image,output_image);
   unsigned char** output_image = convertToGrey(input_image);
 
 
@@ -128,9 +126,7 @@ int main(int argc, char** argv)
   }
 
   //Save image to file
-  write_bitmap(output_image, argv[2]);
-
-  
+  write_bitmap(outputparsed, argv[2]);
 
   printf("Done!\n");
   return 0;
@@ -139,4 +135,3 @@ int main(int argc, char** argv)
   
 };
  
-}
