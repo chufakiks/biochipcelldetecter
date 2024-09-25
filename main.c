@@ -4,41 +4,30 @@
 //To compile (win): gcc cbmp.c main.c -o main.exe -std=c99
 //To run (win): main.exe example.bmp example_inv.bmp
 
-#include "cbmp.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "cbmp.h"
+#include <unistd.h>
 
-
-  //helper to visualize erosion
-  unsigned char** forimagereader (unsigned char output[BMP_WIDTH][BMP_HEIGTH]){
-    unsigned char*** array = malloc(BMP_WIDTH * sizeof(unsigned char**));
-    for (int i = 0; i < BMP_WIDTH; i++) {
-        array[i] = malloc(BMP_WIDTH * sizeof(unsigned char*));
-        for (int j = 0; j < BMP_HEIGTH; j++) {
-            array[i][j] = malloc(3 * sizeof(unsigned char));
-        }
-    }
-
-    for (int i = 0; i < BMP_WIDTH; i++) {
-      for (int j = 0; j < BMP_HEIGTH; j++){
-        array[i][j][0]= output[i][j];
-        array[i][j][1]= output[i][j];
-        array[i][j][2]= output[i][j];
+//Function to invert pixels of an image (negative)
+void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+  for (int x = 0; x < BMP_WIDTH; x++)
+  {
+    for (int y = 0; y < BMP_HEIGTH; y++)
+    {
+      for (int c = 0; c < BMP_CHANNELS; c++)
+      {
+      output_image[x][y][c] = 255 - input_image[x][y][c];
       }
     }
-    return array;
   }
-
+}
 
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
-  unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-  unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char output_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
-  unsigned char** convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
-  unsigned char** output_image = (unsigned char**)malloc(BMP_WIDTH * sizeof(unsigned char*));
-  for (int i = 0; i < BMP_WIDTH; i++) {
-        output_image[i] = (unsigned char*)malloc(BMP_HEIGTH * sizeof(unsigned char));
-    }
+  void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
 
     int thfb = 90;  // Sätt konstantvärden utanför loopen
     unsigned char r, g, b;  // Deklarera färgvariablerna utanför loopen
@@ -51,40 +40,42 @@
             b = input_image[x][y][2];
 
             grey_value = (r + g + b) / 3; //calculate grey value
-
-            if (grey_value <= thfb) 
-              output_image[x][y] = 0; //svart
-            else
-              output_image[x][y] = 255; //vit
-          }
-      }
-      return output_image;
-    }
-  
-void erode(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]){
-  for (int x = 0; x < BMP_WIDTH; x++){
-    for (int y = 0; y < BMP_HEIGTH; y++) {
-
-      *output[x][y] = *input[x][y];
-
-      if (*input[x][y] == 255) {
-
-        for (int i = -1; i <= 1; i++) { //look at 3x3 neighburs
-          for (int j = -1; j <= 1; j++) {
-
-            if (*input[x+i][y+j] == 0) {
-              *input[x][y] = 0;
-              break;
+            for(int color=0; color<BMP_CHANNELS; color++){
+              if (grey_value <= thfb) 
+                output_image[x][y][color] = 0; //svart
+              else
+                output_image[x][y][color] = 255; //vit
             }
-        }
       }
-    }
-     else {
-       break; //keep black and move on to next cell
-     }
     }
   }
-}
+
+
+void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+  for (int x = 1; x < BMP_WIDTH - 1; x++){
+    for (int y = 1; y < BMP_HEIGTH - 1; y++) {
+      if(input_image[x][y][0] == 255) {
+        output_image[x][y][0] = 255;
+        output_image[x][y][1] = 255;
+        output_image[x][y][2] = 255;
+        for (int i = -1; i <= 1; i++) { //look at 3x3 neighburs
+            for (int j = -1; j <= 1; j++) {
+                if(input_image[x+i][y+j][0] == 0 && i != 0 && j != 0 ) {
+                  output_image[x][y][0] = 0;
+                  output_image[x][y][1] = 0;
+                  output_image[x][y][2] = 0;
+                  //printf("x: %d, y: %d \n", x, y);
+                }
+            }
+        }
+      } else {
+        output_image[x][y][0] = 0;
+        output_image[x][y][1] = 0;
+        output_image[x][y][2] = 0;
+      }
+    }
+  }
+  }
 
 //Main function
 int main(int argc, char** argv)
@@ -103,35 +94,37 @@ int main(int argc, char** argv)
 
   printf("Example program - 02132 - A1\n");
 
-  //Load image from filey
-  read_bitmap(argv[1], input_image);
+  //Load image from file
+  read_bitmap(argv[1], input_image_real);
 
-  unsigned char** output_image = convertToGrey(input_image);
+  convertToGrey(input_image_real, output_image_real);
+  int iterations = 15;
+  // erode(output_image_real, input_image_real);
+  // write_bitmap(input_image_real, argv[2]);
+  // sleep(1);
+  // erode(input_image_real, output_image_real);
+  // write_bitmap(output_image_real, argv[2]);
 
-
-  unsigned char** outputparsed;
-  int iterations = 5;
   for (int i = 0; i < iterations; i++) {
+    printf("iterattions for loops \n");
     if (i%2 == 0) {
-      erode(input_image, output_image);
+      erode(output_image_real, input_image_real);
+      write_bitmap(input_image_real, argv[2]);
     } else {
-      erode(output_image, input_image);
+      erode(input_image_real, output_image_real);
+      write_bitmap(output_image_real, argv[2]);
     }
+    sleep(1);
   }
-  if (iterations % 2 == 0) {
-    outputparsed = forimagereader(output_image);
-    write_bitmap(output_image, argv[2]);
-  } else {
-    write_bitmap(input_image, argv[2]);
-  }
-
+  // if (iterations % 2 == 0) {
+  //   write_bitmap(input_image, argv[2]);
+  // } else {
+  //   write_bitmap(output_image, argv[2]);
+  // }
+  //Run inversion
+  //invert(input_image,output_image);
   //Save image to file
-  write_bitmap(outputparsed, argv[2]);
 
   printf("Done!\n");
   return 0;
-
-  
-  
 };
- 
