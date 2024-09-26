@@ -76,6 +76,20 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
     }
   }
   }
+void celldetection(output_image){
+  for (int x = 0; x < BMP_WIDTH; x++) {
+    for (int y = 0; y < BMP_HEIGTH; y++) {
+      for (int i = 0; i < x+4; i++){
+      }    
+      for (int j = 0; j < y+4; j++){
+      }
+      for (int k = 0; k < x-4; k++){
+      }
+      for (int n = 0; n < y-4; n++){
+      }
+    }
+  }
+}
 
 //Main function
 int main(int argc, char** argv)
