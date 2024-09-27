@@ -50,6 +50,7 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
     }
   }
 
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]);
 
 void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
   for (int x = 1; x < BMP_WIDTH - 1; x++){
@@ -75,20 +76,63 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
       }
     }
   }
+      celldetection(output_image);
   }
-void celldetection(output_image){
-  for (int x = 0; x < BMP_WIDTH; x++) {
-    for (int y = 0; y < BMP_HEIGTH; y++) {
-      for (int i = 0; i < x+4; i++){
-      }    
-      for (int j = 0; j < y+4; j++){
-      }
-      for (int k = 0; k < x-4; k++){
-      }
-      for (int n = 0; n < y-4; n++){
-      }
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]) {
+    // Iterera över alla pixlar i bilden
+    for (int x = 7; x < BMP_WIDTH - 7; x++) {  // Startar på 7 och slutar på WIDTH-7 för att undvika utanför gränser
+        for (int y = 7; y < BMP_HEIGTH - 7; y++) {
+
+            // Kontrollera exklusionsram (14x14) runt capturing area
+            int exclusion_frame_black = 1;
+            for (int i = -7; i <= 7; i++) {
+                for (int j = -7; j <= 7; j++) {
+                    // Exklusionsramen ligger utanför capturing area (12x12)
+                    if ((i == -7 || i == 7 || j == -7 || j == 7) && output_image[x + i][y + j][0] != 0) {
+                        exclusion_frame_black = 0;
+                        break;
+                    }
+                }
+                if (!exclusion_frame_black) break;
+            }
+
+            // Om exklusionsramen inte är helt svart, hoppa över
+            if (!exclusion_frame_black) continue;
+
+            // Kontrollera capturing area (12x12) för att hitta vita pixlar
+            int white_pixel_found = 0;
+            for (int i = -6; i <= 6; i++) {
+                for (int j = -6; j <= 6; j++) {
+                  for (int k = 0; k < BMP_CHANNELS; k++)
+                  {
+                    if (output_image[x + i][y + j][k] == 255) { // Vita pixlar är 255
+                        white_pixel_found = 1;
+                        printf("pixel found");
+                      for (int m = -20; m < 20; m++) {
+                        output_image[x + 1 + m][y + j][0] = 255;
+                        output_image[x + 1 + m][y + j][1] = 0;
+                        output_image[x + 1 + m][y + j][2] = 0;
+                        break;
+                      }
+                    }
+                  }
+                }
+                if (white_pixel_found) break;
+            }
+
+            // Om minst en vit pixel finns och exklusionsramen är svart
+            if (white_pixel_found) {
+                // Svärta hela capturing area (12x12) för att undvika dubbelräkning
+                for (int i = -6; i <= 6; i++) {
+                    for (int j = -6; j <= 6; j++) {
+                      for (int k=0; k < BMP_CHANNELS; k++){
+                        output_image[x + i][y + j][k] = 0;  // Svärta capturing area
+                      }
+                    }
+                }
+            }
+        }
     }
-  }
 }
 
 //Main function
