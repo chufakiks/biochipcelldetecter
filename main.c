@@ -50,9 +50,9 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
     }
   }
 
-void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]);
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]);
 
-void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
   for (int x = 1; x < BMP_WIDTH - 1; x++){
     for (int y = 1; y < BMP_HEIGTH - 1; y++) {
       if(input_image[x][y][0] == 255) {
@@ -76,9 +76,9 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
       }
     }
   }
-      celldetection(output_image);
+      celldetection(output_image, cellpositions);
   }
-void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]) {
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]) {
     // Iterera över alla pixlar i bilden
     for (int x = 7; x < BMP_WIDTH - 7; x++) {  // Startar på 7 och slutar på WIDTH-7 för att undvika utanför gränser
         for (int y = 7; y < BMP_HEIGTH - 7; y++) {
@@ -107,13 +107,8 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
                   {
                     if (output_image[x + i][y + j][k] == 255) { // Vita pixlar är 255
                         white_pixel_found = 1;
+                        cellpositions[x + i][y + i] = 1;
                         printf("pixel found");
-                      for (int m = -20; m < 20; m++) {
-                        output_image[x + 1 + m][y + j][0] = 255;
-                        output_image[x + 1 + m][y + j][1] = 0;
-                        output_image[x + 1 + m][y + j][2] = 0;
-                        break;
-                      }
                     }
                   }
                 }
@@ -133,6 +128,24 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
             }
         }
     }
+}
+
+void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
+int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
+  for (int i = 0; i < BMP_WIDTH; i++){
+    for (int j = 0; j < BMP_HEIGTH; j++){
+      if (cellpositions[i][j] == 1){
+        for (int m = -1; m < 1; m++) {
+          input_image[i + 1 + m][j][0] = 255;
+          input_image[i + 1 + m][j][1] = 0;
+          input_image[i + 1 + m][j][2] = 0;
+          input_image[i + 1 ][j + m][0] = 255;
+          input_image[i + 1][j + m][1] = 0;
+          input_image[i + 1][j + m][2] = 0;
+        }
+      }
+    }
+  }
 }
 
 //Main function
@@ -163,17 +176,22 @@ int main(int argc, char** argv)
   // erode(input_image_real, output_image_real);
   // write_bitmap(output_image_real, argv[2]);
 
+  int cellpositions[BMP_WIDTH][BMP_HEIGTH];
+
   for (int i = 0; i < iterations; i++) {
     printf("iterattions for loops \n");
     if (i%2 == 0) {
-      erode(output_image_real, input_image_real);
-      write_bitmap(input_image_real, argv[2]);
+      erode(output_image_real, input_image_real, cellpositions);
+      //write_bitmap(input_image_real, argv[2]);
     } else {
-      erode(input_image_real, output_image_real);
-      write_bitmap(output_image_real, argv[2]);
+      erode(input_image_real, output_image_real, cellpositions);
+      //write_bitmap(output_image_real, argv[2]);
     }
     sleep(1);
   }
+
+  drawredcrosses(input_image_real, cellpositions);
+  write_bitmap(input_image_real, argv[2]);
   // if (iterations % 2 == 0) {
   //   write_bitmap(input_image, argv[2]);
   // } else {
