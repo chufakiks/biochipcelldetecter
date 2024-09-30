@@ -26,6 +26,7 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
   unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
   unsigned char output_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char for_eroding[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
   void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
 
@@ -167,24 +168,20 @@ int main(int argc, char** argv)
 
   //Load image from file
   read_bitmap(argv[1], input_image_real);
+  read_bitmap(argv[1], for_eroding);
 
   convertToGrey(input_image_real, output_image_real);
   int iterations = 15;
-  // erode(output_image_real, input_image_real);
-  // write_bitmap(input_image_real, argv[2]);
-  // sleep(1);
-  // erode(input_image_real, output_image_real);
-  // write_bitmap(output_image_real, argv[2]);
 
   int cellpositions[BMP_WIDTH][BMP_HEIGTH];
 
   for (int i = 0; i < iterations; i++) {
     printf("iterattions for loops \n");
     if (i%2 == 0) {
-      erode(output_image_real, input_image_real, cellpositions);
+      erode(output_image_real, for_eroding, cellpositions);
       //write_bitmap(input_image_real, argv[2]);
     } else {
-      erode(input_image_real, output_image_real, cellpositions);
+      erode(for_eroding, output_image_real, cellpositions);
       //write_bitmap(output_image_real, argv[2]);
     }
     sleep(1);
@@ -192,14 +189,6 @@ int main(int argc, char** argv)
 
   drawredcrosses(input_image_real, cellpositions);
   write_bitmap(input_image_real, argv[2]);
-  // if (iterations % 2 == 0) {
-  //   write_bitmap(input_image, argv[2]);
-  // } else {
-  //   write_bitmap(output_image, argv[2]);
-  // }
-  //Run inversion
-  //invert(input_image,output_image);
-  //Save image to file
 
   printf("Done!\n");
   return 0;
