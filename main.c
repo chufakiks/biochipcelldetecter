@@ -136,14 +136,16 @@ int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
   for (int i = 0; i < BMP_WIDTH; i++){
     for (int j = 0; j < BMP_HEIGTH; j++){
       if (cellpositions[i][j] == 1){
-        for (int m = -1; m < 1; m++) {
-          input_image[i + 1 + m][j][0] = 255;
-          input_image[i + 1 + m][j][1] = 0;
-          input_image[i + 1 + m][j][2] = 0;
-          input_image[i + 1 ][j + m][0] = 255;
-          input_image[i + 1][j + m][1] = 0;
-          input_image[i + 1][j + m][2] = 0;
+        if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9){
+          for (int m = -7; m < 7; m++) {
+          input_image[i + m][j][0] = 255;
+          input_image[i + m][j][1] = 0;
+          input_image[i + m][j][2] = 0;
+          input_image[i][j + m][0] = 255;
+          input_image[i][j + m][1] = 0;
+          input_image[i][j + m][2] = 0;
         }
+      }  
       }
     }
   }
@@ -179,10 +181,10 @@ int main(int argc, char** argv)
     printf("iterattions for loops \n");
     if (i%2 == 0) {
       erode(output_image_real, for_eroding, cellpositions);
-      //write_bitmap(input_image_real, argv[2]);
+      write_bitmap(for_eroding, argv[2]);
     } else {
       erode(for_eroding, output_image_real, cellpositions);
-      //write_bitmap(output_image_real, argv[2]);
+      write_bitmap(output_image_real, argv[2]);
     }
     sleep(1);
   }
