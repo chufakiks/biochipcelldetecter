@@ -104,10 +104,31 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
     erosionOtp(output, input);
     
   }
-  short int[] findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH]){
+  char done = 1;
+  char* tempDone = &done;
+  short int[] findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH],vector start){
+  while (*tempDone){
+    if (input_image[start.x-1][start.y] == 255){
 
+    }
+    else if (input_image[start.x][start.y-1] == 255){
+
+    }
+    else if (input_image[start.x+1][start.y] == 255){
+
+    } 
+    else if (input_image[start.x][start.y+1] == 255){
+
+    }
+    if (queue.notempty()) {
+
+    } else {
+      *tempDone = 0;
+    }
+  }
     // Return er et char array, hvor index 0 er min_x, index 1 er max_x, index 2 er min_y og index 3 er max_y
   }
+
 //Main function
 int main(int argc, char** argv)
 {
