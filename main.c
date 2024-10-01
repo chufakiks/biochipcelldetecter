@@ -312,7 +312,31 @@ int main(int argc, char **argv)
     exit(1);
   }
   printf("Example program - 02132 - A1\n");
+  Stack stack;
+    // Initialize the stack
+    initialize(&stack);  
+    if(isEmpty(&stack)){
+        printf("hej");
+    }
+    // Push elements onto the stack and print the stack after each push
+    push(&stack, 3);
+    printf("Top element: %d\n", peek(&stack));
 
+    push(&stack, 5);
+    printf("Top element: %d\n", peek(&stack));
+    
+
+    push(&stack, 2);
+    printf("Top element: %d\n", peek(&stack));
+
+    push(&stack, 8);
+    printf("Top element: %d\n", peek(&stack));
+
+    // Pop elements from the stack and print the stack after each pop
+    while (!isEmpty(&stack)) {
+        printf("Top element: %d\n", peek(&stack));
+        printf("Popped element: %d\n", pop(&stack));
+    }
   // Load image from file
   read_bitmap(argv[1], input_image_real);
   read_bitmap(argv[1], for_eroding);
