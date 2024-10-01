@@ -7,8 +7,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cbmp.h"
+#include "stack.h"
 #include <unistd.h>
-#include<windows.h>
+
+//#include<windows.h>
 
 // Function to invert pixels of an image (negative)
 void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
@@ -281,7 +283,7 @@ void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
         if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9)
         {
           for (int m = -7; m < 7; m++)
-          {
+          { 
             input_image[i + m][j][0] = 255;
             input_image[i + m][j][1] = 0;
             input_image[i + m][j][2] = 0;
@@ -333,8 +335,8 @@ int main(int argc, char **argv)
       erode(for_eroding, output_image_real, cellpositions);
       write_bitmap(output_image_real, argv[2]);
     }
-    //sleep(1); //  for linux
-    Sleep(10); // for windows
+    sleep(1); //  for linux
+    //Sleep(10); // for windows
   }
 
   drawredcrosses(input_image_real, cellpositions);
