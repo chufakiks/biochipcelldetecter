@@ -125,7 +125,7 @@ void findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS],stru
     else if (input_image[start.x][start.y+1][0] == 255){
 
     }
-    // if (queue.notempty()) {
+    /* if (queue.notempty()) {
 
     } else {
       *tempDone = 0;
@@ -133,7 +133,7 @@ void findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS],stru
       ds[1] = maxx;
       ds[2] = miny;
       ds[3] = maxy;
-    }
+    }*/
   }
 }
 
