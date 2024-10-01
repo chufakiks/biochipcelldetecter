@@ -10,7 +10,7 @@
 #include "stack.h"
 #include <unistd.h>
 
-//#include<windows.h>
+// #include<windows.h>
 
 // Function to invert pixels of an image (negative)
 void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
@@ -72,6 +72,8 @@ struct vector
 };
 struct vector cellDetected[(BMP_HEIGTH * 4) - 4];
 struct vector cellCenters[((1 / 2) * BMP_HEIGTH) * ((1 / 2) * BMP_HEIGTH)];
+Stack stack;
+
 short int ite = 0;
 int a = 0; // kom
 int *n = &a;
@@ -121,7 +123,7 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsign
 }
 struct vector temp;
 short int ds[4];
-void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int* k)
+void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *k)
 {
   if (*k > 0)
   {
@@ -132,7 +134,7 @@ void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
         temp.x = cellDetected[*k].x;
         temp.y = cellDetected[*k].y;
         findGridSize(input);
-        //erodeBox(ds);
+        // erodeBox(ds);
       }
     }
   }
@@ -157,7 +159,7 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
     else if (input[temp.x][temp.y + 1][0] == 255)
     {
     }
-    /* if (queue.notempty()) {
+     if (!isEmpty(&stack)) {
 
     } else {
       *tempDone = 0;
@@ -165,7 +167,7 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
       ds[1] = maxx;
       ds[2] = miny;
       ds[3] = maxy;
-    }*/
+    }
   }
 }
 void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH])
@@ -283,7 +285,7 @@ void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
         if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9)
         {
           for (int m = -7; m < 7; m++)
-          { 
+          {
             input_image[i + m][j][0] = 255;
             input_image[i + m][j][1] = 0;
             input_image[i + m][j][2] = 0;
@@ -312,31 +314,13 @@ int main(int argc, char **argv)
     exit(1);
   }
   printf("Example program - 02132 - A1\n");
-  Stack stack;
-    // Initialize the stack
-    initialize(&stack);  
-    if(isEmpty(&stack)){
-        printf("hej");
-    }
-    // Push elements onto the stack and print the stack after each push
-    push(&stack, 3);
-    printf("Top element: %d\n", peek(&stack));
 
-    push(&stack, 5);
-    printf("Top element: %d\n", peek(&stack));
-    
-
-    push(&stack, 2);
-    printf("Top element: %d\n", peek(&stack));
-
-    push(&stack, 8);
-    printf("Top element: %d\n", peek(&stack));
-
-    // Pop elements from the stack and print the stack after each pop
-    while (!isEmpty(&stack)) {
-        printf("Top element: %d\n", peek(&stack));
-        printf("Popped element: %d\n", pop(&stack));
-    }
+  // Initialize the stack
+  initialize(&stack);
+  if (isEmpty(&stack))
+  {
+    printf("nernej \n");
+  }
   // Load image from file
   read_bitmap(argv[1], input_image_real);
   read_bitmap(argv[1], for_eroding);
@@ -360,7 +344,7 @@ int main(int argc, char **argv)
       write_bitmap(output_image_real, argv[2]);
     }
     sleep(1); //  for linux
-    //Sleep(10); // for windows
+    // Sleep(10); // for windows
   }
 
   drawredcrosses(input_image_real, cellpositions);
