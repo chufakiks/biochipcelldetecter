@@ -58,33 +58,33 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
   short int ite = 0;
   int a = 0; //kom
   int* n = &a;
-  void erosionOtp (unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH]) {
+  void erosionOtp (unsigned char* input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char* output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]) {
        for (int i = 0; i < ((BMP_HEIGTH-0)/2); i++){
         for(int x = ite; x < BMP_WIDTH - ite; x++){
-          if(*input[x][ite] == 255){
+          if(*input[x][ite][0] == 255){
             cellDetected[*n].x = x;
             cellDetected[*n].y = ite;
             (*n)++;
           }
         }
         for(int y = ite; y < BMP_HEIGTH - ite; y++){
-          if(*input[BMP_WIDTH - ite][y] == 255){
+          if(*input[BMP_WIDTH - ite][y][0] == 255){
             cellDetected[*n].x = BMP_WIDTH - ite;
             cellDetected[*n].y = y;
             (*n)++;
           }
         }
         for(int x = (BMP_WIDTH - 1) - ite; x >= 0 + ite; x--){
-          if(*input[x][BMP_HEIGTH - ite] == 255){
+          if(*input[x][BMP_HEIGTH - ite][0] == 255){
             cellDetected[*n].x = x;
             cellDetected[*n].y = BMP_HEIGTH - ite;
             (*n)++;
           }
         }
          for(int y = (BMP_HEIGTH - 1)- i; y >= 0 + i; y--){
-          if(*input[y][0] == 255){
-            cellDetected[*n].x = BMP_HEIGTH - ite;
-            cellDetected[*n].y = ite;
+          if(*input[ite][y][0] == 255){
+            cellDetected[*n].x = ite;
+            cellDetected[*n].y = y;
             (*n)++;
           }
          }
@@ -92,42 +92,50 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
           cellDetectionOpt(input, output, &n);
         }
   }
- 
-  void cellDetectionOpt(unsigned char* input[BMP_WIDTH][BMP_HEIGTH], unsigned char* output[BMP_WIDTH][BMP_HEIGTH], int* n){
-    if (n > 0){
-      for (; n >= 0; n--){
-        if (*input[cellDetected[*n].x][cellDetected[*n].y] == 255){
-          erodeBox(findGrindSize());
+ struct vector temp;
+ short int ds[4];
+  void cellDetectionOpt(unsigned char* input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char* output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int* n){
+    if (*n > 0){
+      for (; *n >= 0; *n--){
+        if (*input[cellDetected[*n].x][cellDetected[*n].y][0] == 255){
+          temp.x = cellDetected[*n].x;
+          temp.y = cellDetected[*n].y;
+          findGridSize(input, temp);
+          erodeBox(ds);
         } 
      } 
     } 
-    erosionOtp(output, input);
+    erosionOtp(&output, &input);
     
   }
   char done = 1;
   char* tempDone = &done;
-  short int[] findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH],vector start){
+  short int minx, maxx, miny, maxy;
+void findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS],struct vector start){
   while (*tempDone){
-    if (input_image[start.x-1][start.y] == 255){
+    if (input_image[start.x-1][start.y][0] == 255){
 
     }
-    else if (input_image[start.x][start.y-1] == 255){
+    else if (input_image[start.x][start.y-1][0] == 255){
 
     }
-    else if (input_image[start.x+1][start.y] == 255){
+    else if (input_image[start.x+1][start.y][0] == 255){
 
     } 
-    else if (input_image[start.x][start.y+1] == 255){
+    else if (input_image[start.x][start.y+1][0] == 255){
 
     }
     if (queue.notempty()) {
 
     } else {
       *tempDone = 0;
+      ds[0] = minx;
+      ds[1] = maxx;
+      ds[2] = miny;
+      ds[3] = maxy;
     }
   }
-    // Return er et char array, hvor index 0 er min_x, index 1 er max_x, index 2 er min_y og index 3 er max_y
-  }
+}
 
 //Main function
 int main(int argc, char** argv)
