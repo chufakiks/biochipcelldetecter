@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cbmp.h"
+#include <unistd.h>
 
 //Function to invert pixels of an image (negative)
 void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
@@ -23,12 +24,14 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
 }
 
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
-  unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-  unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-  unsigned char dualIm[BMP_WIDTH][BMP_HEIGTH];
-  unsigned char erode[BMP_WIDTH][BMP_HEIGTH];
 
-  void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
+  unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char output_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+  unsigned char for_eroding[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]);
+
+void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]){
 
     int thfb = 90;  // Sätt konstantvärden utanför loopen
     unsigned char r, g, b;  // Deklarera färgvariablerna utanför loopen
@@ -39,16 +42,18 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
             r = input_image[x][y][0]; //read each coulor value
             g = input_image[x][y][1];
             b = input_image[x][y][2];
-
-            grey_value = (r + g + b) / 3; //calculate grey value #2
-
-            if (grey_value <= thfb)  //  #3
-              *output_image[x][y] = 0; //black
-            else
-              *output_image[x][y] = 255; //white
-          }
+            
+            grey_value = (r + g + b) / 3; //calculate grey value
+            for(int color=0; color<BMP_CHANNELS; color++){
+              if (grey_value <= thfb) 
+                output_image[x][y][color] = 0; //svart
+              else
+                output_image[x][y][color] = 255; //vit
+            }
       }
     }
+  }
+
   struct vector {
     unsigned char x;
     unsigned char y;
@@ -134,6 +139,103 @@ void findGridSize(unsigned char* input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS],stru
       ds[2] = miny;
       ds[3] = maxy;
     }*/
+
+
+void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
+  for (int x = 1; x < BMP_WIDTH - 1; x++){
+    for (int y = 1; y < BMP_HEIGTH - 1; y++) {
+      if(input_image[x][y][0] == 255) {
+        output_image[x][y][0] = 255;
+        output_image[x][y][1] = 255;
+        output_image[x][y][2] = 255;
+        for (int i = -1; i <= 1; i++) { //look at 3x3 neighburs
+            for (int j = -1; j <= 1; j++) {
+                if(input_image[x+i][y+j][0] == 0 && i != 0 && j != 0 ) {
+                  output_image[x][y][0] = 0;
+                  output_image[x][y][1] = 0;
+                  output_image[x][y][2] = 0;
+                  //printf("x: %d, y: %d \n", x, y);
+                }
+            }
+        }
+      } else {
+        output_image[x][y][0] = 0;
+        output_image[x][y][1] = 0;
+        output_image[x][y][2] = 0;
+      }
+    }
+  }
+      celldetection(output_image, cellpositions);
+  }
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]) {
+    // Iterera över alla pixlar i bilden
+    for (int x = 7; x < BMP_WIDTH - 7; x++) {  // Startar på 7 och slutar på WIDTH-7 för att undvika utanför gränser
+        for (int y = 7; y < BMP_HEIGTH - 7; y++) {
+
+            // Kontrollera exklusionsram (14x14) runt capturing area
+            int exclusion_frame_black = 1;
+            for (int i = -7; i <= 7; i++) {
+                for (int j = -7; j <= 7; j++) {
+                    // Exklusionsramen ligger utanför capturing area (12x12)
+                    if ((i == -7 || i == 7 || j == -7 || j == 7) && output_image[x + i][y + j][0] != 0) {
+                        exclusion_frame_black = 0;
+                        break;
+                    }
+                }
+                if (!exclusion_frame_black) break;
+            }
+
+            // Om exklusionsramen inte är helt svart, hoppa över
+            if (!exclusion_frame_black) continue;
+
+            // Kontrollera capturing area (12x12) för att hitta vita pixlar
+            int white_pixel_found = 0;
+            for (int i = -6; i <= 6; i++) {
+                for (int j = -6; j <= 6; j++) {
+                  for (int k = 0; k < BMP_CHANNELS; k++)
+                  {
+                    if (output_image[x + i][y + j][k] == 255) { // Vita pixlar är 255
+                        white_pixel_found = 1;
+                        cellpositions[x + i][y + i] = 1;
+                        printf("pixel found");
+                    }
+                  }
+                }
+                if (white_pixel_found) break;
+            }
+
+            // Om minst en vit pixel finns och exklusionsramen är svart
+            if (white_pixel_found) {
+                // Svärta hela capturing area (12x12) för att undvika dubbelräkning
+                for (int i = -6; i <= 6; i++) {
+                    for (int j = -6; j <= 6; j++) {
+                      for (int k=0; k < BMP_CHANNELS; k++){
+                        output_image[x + i][y + j][k] = 0;  // Svärta capturing area
+                      }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
+int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
+  for (int i = 0; i < BMP_WIDTH; i++){
+    for (int j = 0; j < BMP_HEIGTH; j++){
+      if (cellpositions[i][j] == 1){
+        if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9){
+          for (int m = -7; m < 7; m++) {
+          input_image[i + m][j][0] = 255;
+          input_image[i + m][j][1] = 0;
+          input_image[i + m][j][2] = 0;
+          input_image[i][j + m][0] = 255;
+          input_image[i][j + m][1] = 0;
+          input_image[i][j + m][2] = 0;
+        }
+      }  
+      }
+    }
   }
 }
 
@@ -154,14 +256,30 @@ int main(int argc, char** argv)
   printf("Example program - 02132 - A1\n");
 
   //Load image from file
-  read_bitmap(argv[1], input_image);
+  read_bitmap(argv[1], input_image_real);
+  read_bitmap(argv[1], for_eroding);
 
-  //Run inversion
-  invert(input_image,output_image);
+  convertToGrey(input_image_real, output_image_real);
+  int iterations = 15;
 
-  //Save image to file
-  write_bitmap(output_image, argv[2]);
-  
+
+  int cellpositions[BMP_WIDTH][BMP_HEIGTH];
+
+  for (int i = 0; i < iterations; i++) {
+    printf("iterattions for loops \n");
+    if (i%2 == 0) {
+      erode(output_image_real, for_eroding, cellpositions);
+      write_bitmap(for_eroding, argv[2]);
+    } else {
+      erode(for_eroding, output_image_real, cellpositions);
+      write_bitmap(output_image_real, argv[2]);
+    }
+    sleep(1);
+  }
+
+  drawredcrosses(input_image_real, cellpositions);
+  write_bitmap(input_image_real, argv[2]);
+
   printf("Done!\n");
   return 0;
-}
+};
