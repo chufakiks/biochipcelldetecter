@@ -26,7 +26,6 @@ void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsi
     }
   }
 }
-
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 
 unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -41,8 +40,8 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
 void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
 
-  int thfb = 90;         // Sätt konstantvärden utanför loopen
-  unsigned char r, g, b; // Deklarera färgvariablerna utanför loopen
+  int thfb = 90;         
+  unsigned char r, g, b; 
   unsigned char grey_value;
 
   for (int x = 0; x < BMP_WIDTH; x++)
@@ -53,13 +52,13 @@ void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS
       g = input_image[x][y][1];
       b = input_image[x][y][2];
 
-      grey_value = (r + g + b) / 3; // calculate grey value
+      grey_value = (r + g + b) / 3; // grey value
       for (int color = 0; color < BMP_CHANNELS; color++)
       {
         if (grey_value <= thfb)
-          output_image[x][y][color] = 0; // svart
+          output_image[x][y][color] = 0;
         else
-          output_image[x][y][color] = 255; // vit
+          output_image[x][y][color] = 255;
       }
     }
   }
@@ -75,7 +74,7 @@ struct vector cellCenters[((1 / 2) * BMP_HEIGTH) * ((1 / 2) * BMP_HEIGTH)];
 Stack stack;
 
 short int ite = 0;
-int a = 0; // kom
+int a = 0;
 int *n = &a;
 void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
@@ -205,21 +204,23 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
   }
   celldetection(output_image, cellpositions);
 }
+int countCell;
+int count;
 void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH])
 {
-  // Iterera över alla pixlar i bilden
+  int count = 0;
   for (int x = 7; x < BMP_WIDTH - 7; x++)
-  { // Startar på 7 och slutar på WIDTH-7 för att undvika utanför gränser
+  { // Starts at 7, ends at WIDTH-7
     for (int y = 7; y < BMP_HEIGTH - 7; y++)
     {
 
-      // Kontrollera exklusionsram (14x14) runt capturing area
+      // check around (14x14) capturing area
       int exclusion_frame_black = 1;
       for (int i = -7; i <= 7; i++)
       {
         for (int j = -7; j <= 7; j++)
         {
-          // Exklusionsramen ligger utanför capturing area (12x12)
+          // Exclusion frame outside capturing area (12x12)
           if ((i == -7 || i == 7 || j == -7 || j == 7) && output_image[x + i][y + j][0] != 0)
           {
             exclusion_frame_black = 0;
@@ -243,34 +244,35 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
           for (int k = 0; k < BMP_CHANNELS; k++)
           {
             if (output_image[x + i][y + j][k] == 255)
-            { // Vita pixlar är 255
+            {
+            
               white_pixel_found = 1;
               cellpositions[x + i][y + i] = 1;
-              printf("pixel found");
             }
           }
         }
         if (white_pixel_found)
+        count++;
           break;
       }
-
-      // Om minst en vit pixel finns och exklusionsramen är svart
+      // one white, frame black
       if (white_pixel_found)
       {
-        // Svärta hela capturing area (12x12) för att undvika dubbelräkning
+        // try to avoid double count
         for (int i = -6; i <= 6; i++)
         {
           for (int j = -6; j <= 6; j++)
           {
             for (int k = 0; k < BMP_CHANNELS; k++)
             {
-              output_image[x + i][y + j][k] = 0; // Svärta capturing area
+              output_image[x + i][y + j][k] = 0; // capturing area -> black
             }
           }
         }
       }
     }
   }
+  printf("Cells found during erode: %d\n", count);
 }
 
 void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS],
@@ -299,7 +301,6 @@ void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
   }
 }
 
-// Main function
 int main(int argc, char **argv)
 {
   // argc counts how may arguments are passed
@@ -315,12 +316,8 @@ int main(int argc, char **argv)
   }
   printf("Example program - 02132 - A1\n");
 
-  // Initialize the stack
   initialize(&stack);
-  if (isEmpty(&stack))
-  {
-    printf("nernej \n");
-  }
+  
   // Load image from file
   read_bitmap(argv[1], input_image_real);
   read_bitmap(argv[1], for_eroding);
@@ -332,7 +329,6 @@ int main(int argc, char **argv)
 
   for (int i = 0; i < iterations; i++)
   {
-    printf("iterattions for loops \n");
     if (i % 2 == 0)
     {
       erode(output_image_real, for_eroding, cellpositions);
