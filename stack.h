@@ -6,6 +6,10 @@
 // Define the maximim capacity of the stack
 #define MAX_SIZE 100
 
+typedef struct {
+    short int x;
+    short int y;
+} vector;
 // Define a structure for the stack
 typedef struct {
     // Array to store stack elements
