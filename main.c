@@ -36,7 +36,7 @@ unsigned char for_opt[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]);
 void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *n);
 void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
-
+void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
 void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
 
@@ -132,7 +132,7 @@ void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
         temp.y = cellDetected[*k].y;
         findGridSize(input);
         // printf("jel");
-        //  erodeBox(ds);
+        erodeBox(input);
       }
     }
   }
@@ -143,6 +143,7 @@ char *tempDone = &done;
 short int minx, maxx, miny, maxy;
 void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
 {
+  *tempDone = 1;
   minx, maxx = temp.x;
   miny, maxy = temp.y;
   while (*tempDone)
@@ -212,11 +213,20 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
     }
   }
 }
+void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]){
+    for (int mix = ds[0]; mix < ds[1]; mix++){
+      for (int miy = ds[2]; miy < ds[3]; miy++){
+        if (for_opt[mix][miy][0] == 255){
+
+        }
+      }
+    }
+}
 void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH])
 {
-  for (int x = 1; x < BMP_WIDTH - 1; x++)
+  for (int x = 0; x < BMP_WIDTH; x++)
   {
-    for (int y = 1; y < BMP_HEIGTH - 1; y++)
+    for (int y = 0; y < BMP_HEIGTH; y++)
     {
       if (input_image[x][y][0] == 255)
       {
@@ -227,7 +237,10 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
         { // look at 3x3 neighburs
           for (int j = -1; j <= 1; j++)
           {
-            if (input_image[x + i][y + j][0] == 0 && i != 0 && j != 0)
+            if(x+i >= BMP_HEIGTH || x+i < 0 || y+i >= BMP_HEIGTH || y+i < 0) {
+              continue;
+            }
+            else if (input_image[x + i][y + j][0] == 0 && i != 0 && j != 0)
             {
               output_image[x][y][0] = 0;
               output_image[x][y][1] = 0;
@@ -370,25 +383,25 @@ int main(int argc, char **argv)
 
   int cellpositions[BMP_WIDTH][BMP_HEIGTH];
 
-  /*for (int i = 0; i < iterations; i++)
+  for (int i = 0; i < iterations; i++)
   {
     if (i % 2 == 0)
     {
-      erosionOtp(output_image_real, for_eroding);
+      erode(output_image_real, for_eroding, cellpositions);
       write_bitmap(for_eroding, argv[2]);
     }
     else
     {
-      erosionOtp(for_eroding, output_image_real);
+      erode(for_eroding, output_image_real, cellpositions);
       write_bitmap(output_image_real, argv[2]);
     }
     sleep(1); //  for linux
     // Sleep(10); // for windows
-  }*/
-
+  }
+ /*
   erosionOtp(output_image_real, for_eroding);
   write_bitmap(for_eroding, argv[2]);
-
+*/
   drawredcrosses(input_image_real, cellpositions);
   write_bitmap(input_image_real, argv[2]);
 
