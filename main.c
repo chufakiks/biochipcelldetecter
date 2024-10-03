@@ -40,8 +40,8 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
 void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
 
-  int thfb = 90;         
-  unsigned char r, g, b; 
+  int thfb = 90;
+  unsigned char r, g, b;
   unsigned char grey_value;
 
   for (int x = 0; x < BMP_WIDTH; x++)
@@ -72,7 +72,8 @@ int a = 0;
 int *n = &a;
 void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
-  //printf("%d \n", ite);
+
+  // printf("%d \n", ite);
   for (int x = ite; x < BMP_WIDTH - ite; x++)
   {
     if (input[x][ite][0] == 255)
@@ -110,9 +111,10 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsign
     }
   }
   ite++;
-  printf("start k: %d", *n);
-  printf("ite : %d \n", ite);
-  cellDetectionOpt(input, output, n);
+  if (ite < BMP_WIDTH / 2 + 1)
+  {
+    cellDetectionOpt(input, output, n);
+  }
 }
 vector temp;
 short int ds[4];
@@ -129,8 +131,8 @@ void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
         temp.x = cellDetected[*k].x;
         temp.y = cellDetected[*k].y;
         findGridSize(input);
-        //printf("jel");
-        // erodeBox(ds);
+        // printf("jel");
+        //  erodeBox(ds);
       }
     }
   }
@@ -145,45 +147,52 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
   miny, maxy = temp.y;
   while (*tempDone)
   {
-    printf("%d \n",peek(&stack));
-    if (input[temp.x - 1][temp.y][0] == 255 && temp.x > 0 && for_opt[temp.x -1][temp.y][0] != 255){
+    printf("%d \n", peek(&stack));
+    if (input[temp.x - 1][temp.y][0] == 255 && temp.x > 0 && for_opt[temp.x - 1][temp.y][0] != 255)
+    {
       push(&stack, temp.x);
-      printf("%d \n",peek(&stack));
+      printf("%d \n", peek(&stack));
       push(&stack, temp.y);
       for_opt[temp.x - 1][temp.y][0] = 255;
       temp.x--;
-      if (temp.x < minx){
+      if (temp.x < minx)
+      {
         minx = temp.x;
       }
     }
-    else if (input[temp.x][temp.y - 1][0] == 255 && temp.y > 0 && for_opt[temp.x][temp.y - 1][0] != 255){
+    else if (input[temp.x][temp.y - 1][0] == 255 && temp.y > 0 && for_opt[temp.x][temp.y - 1][0] != 255)
+    {
       push(&stack, temp.x);
-      printf("%d \n",peek(&stack));
+      printf("%d \n", peek(&stack));
       push(&stack, temp.y);
       for_opt[temp.x][temp.y - 1][0] = 255;
       temp.y--;
-      if (temp.y < miny){
+      if (temp.y < miny)
+      {
         miny = temp.y;
       }
     }
-    else if (input[temp.x + 1][temp.y][0] == 255 && temp.x < BMP_WIDTH - 1 && for_opt[temp.x + 1][temp.y][0] != 255){
+    else if (input[temp.x + 1][temp.y][0] == 255 && temp.x < BMP_WIDTH - 1 && for_opt[temp.x + 1][temp.y][0] != 255)
+    {
       push(&stack, temp.x);
-      printf("%d \n",peek(&stack));
+      printf("%d \n", peek(&stack));
       push(&stack, temp.y);
       for_opt[temp.x + 1][temp.y][0] = 255;
       temp.x++;
-      if (temp.x > maxx){
+      if (temp.x > maxx)
+      {
         maxx = temp.x;
       }
     }
     else if (input[temp.x][temp.y + 1][0] == 255 && temp.y < BMP_HEIGTH - 1 && for_opt[temp.x][temp.y + 1][0] != 255)
     {
       push(&stack, temp.x);
-      printf("%d \n",peek(&stack));
+      printf("%d \n", peek(&stack));
       push(&stack, temp.y);
       for_opt[temp.x][temp.y + 1][0] = 255;
       temp.y++;
-      if (temp.y> maxy){
+      if (temp.y > maxy)
+      {
         maxy = temp.y;
       }
     }
@@ -279,15 +288,15 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
           {
             if (output_image[x + i][y + j][k] == 255)
             {
-            
+
               white_pixel_found = 1;
               cellpositions[x + i][y + i] = 1;
             }
           }
         }
         if (white_pixel_found)
-        count++;
-          break;
+          count++;
+        break;
       }
       // one white, frame black
       if (white_pixel_found)
@@ -351,7 +360,7 @@ int main(int argc, char **argv)
   printf("Example program - 02132 - A1\n");
 
   initialize(&stack);
-  
+
   // Load image from file
   read_bitmap(argv[1], input_image_real);
   read_bitmap(argv[1], for_eroding);
@@ -361,7 +370,7 @@ int main(int argc, char **argv)
 
   int cellpositions[BMP_WIDTH][BMP_HEIGTH];
 
-  for (int i = 0; i < iterations; i++)
+  /*for (int i = 0; i < iterations; i++)
   {
     if (i % 2 == 0)
     {
@@ -375,7 +384,10 @@ int main(int argc, char **argv)
     }
     sleep(1); //  for linux
     // Sleep(10); // for windows
-  }
+  }*/
+
+  erosionOtp(output_image_real, for_eroding);
+  write_bitmap(for_eroding, argv[2]);
 
   drawredcrosses(input_image_real, cellpositions);
   write_bitmap(input_image_real, argv[2]);
