@@ -110,6 +110,8 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsign
     }
   }
   ite++;
+  printf("start k: %d", *n);
+  printf("ite : %d \n", ite);
   cellDetectionOpt(input, output, n);
 }
 vector temp;
@@ -118,13 +120,16 @@ void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
 {
   if (*k > 0)
   {
-    for (; *k >= 0; (*k)--)
+    printf("k: %d", *k);
+    for (; *k > 0; (*k)--)
     {
       if (input[cellDetected[*k].x][cellDetected[*k].y][0] == 255)
       {
+        printf("%d :", *k);
         temp.x = cellDetected[*k].x;
         temp.y = cellDetected[*k].y;
         findGridSize(input);
+        //printf("jel");
         // erodeBox(ds);
       }
     }
@@ -136,22 +141,56 @@ char *tempDone = &done;
 short int minx, maxx, miny, maxy;
 void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
 {
+  minx, maxx = temp.x;
+  miny, maxy = temp.y;
   while (*tempDone)
   {
-    if (input[temp.x - 1][temp.y][0] == 255)
-    {
+    printf("%d \n",peek(&stack));
+    if (input[temp.x - 1][temp.y][0] == 255 && temp.x > 0 && for_opt[temp.x -1][temp.y][0] != 255){
+      push(&stack, temp.x);
+      printf("%d \n",peek(&stack));
+      push(&stack, temp.y);
+      for_opt[temp.x - 1][temp.y][0] = 255;
+      temp.x--;
+      if (temp.x < minx){
+        minx = temp.x;
+      }
     }
-    else if (input[temp.x][temp.y - 1][0] == 255)
-    {
+    else if (input[temp.x][temp.y - 1][0] == 255 && temp.y > 0 && for_opt[temp.x][temp.y - 1][0] != 255){
+      push(&stack, temp.x);
+      printf("%d \n",peek(&stack));
+      push(&stack, temp.y);
+      for_opt[temp.x][temp.y - 1][0] = 255;
+      temp.y--;
+      if (temp.y < miny){
+        miny = temp.y;
+      }
     }
-    else if (input[temp.x + 1][temp.y][0] == 255)
-    {
+    else if (input[temp.x + 1][temp.y][0] == 255 && temp.x < BMP_WIDTH - 1 && for_opt[temp.x + 1][temp.y][0] != 255){
+      push(&stack, temp.x);
+      printf("%d \n",peek(&stack));
+      push(&stack, temp.y);
+      for_opt[temp.x + 1][temp.y][0] = 255;
+      temp.x++;
+      if (temp.x > maxx){
+        maxx = temp.x;
+      }
     }
-    else if (input[temp.x][temp.y + 1][0] == 255)
+    else if (input[temp.x][temp.y + 1][0] == 255 && temp.y < BMP_HEIGTH - 1 && for_opt[temp.x][temp.y + 1][0] != 255)
     {
+      push(&stack, temp.x);
+      printf("%d \n",peek(&stack));
+      push(&stack, temp.y);
+      for_opt[temp.x][temp.y + 1][0] = 255;
+      temp.y++;
+      if (temp.y> maxy){
+        maxy = temp.y;
+      }
     }
-    if (!isEmpty(&stack))
+    else if (!isEmpty(&stack))
     {
+      temp.x = pop(&stack);
+      temp.y = pop(&stack);
     }
     else
     {
@@ -160,6 +199,7 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
       ds[1] = maxx;
       ds[2] = miny;
       ds[3] = maxy;
+      printf("heer %d \n", maxy);
     }
   }
 }
@@ -325,12 +365,12 @@ int main(int argc, char **argv)
   {
     if (i % 2 == 0)
     {
-      erode(output_image_real, for_eroding, cellpositions);
+      erosionOtp(output_image_real, for_eroding);
       write_bitmap(for_eroding, argv[2]);
     }
     else
     {
-      erode(for_eroding, output_image_real, cellpositions);
+      erosionOtp(for_eroding, output_image_real);
       write_bitmap(output_image_real, argv[2]);
     }
     sleep(1); //  for linux
