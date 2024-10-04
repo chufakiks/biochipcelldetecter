@@ -78,7 +78,7 @@ vector cellDetected[(BMP_HEIGTH * 4) - 4];
 vector cellCenters[((1 / 2) * BMP_HEIGTH) * ((1 / 2) * BMP_HEIGTH)];
 Stack stack;
 short int ite = 0;
-int a = 0;
+int a = -1;
 int *n = &a;
 void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
@@ -88,36 +88,36 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
   {
     if (input[x][ite][0] == 255)
     {
+      (*n)++;
       cellDetected[*n].x = x;
       cellDetected[*n].y = ite;
-      (*n)++;
     }
   }
-  for (int y = ite; y < BMP_HEIGTH - ite; y++)
+  for (int y = ite + 1; y < BMP_HEIGTH - ite; y++)
   {
-    if (input[BMP_WIDTH - ite][y][0] == 255)
-    {
-      cellDetected[*n].x = BMP_WIDTH - ite;
+    if (input[BMP_WIDTH - 1 - ite][y][0] == 255)
+     {
+      (*n)++;
+      cellDetected[*n].x = BMP_WIDTH - 1 - ite;
       cellDetected[*n].y = y;
-      (*n)++;
     }
   }
-  for (int x = (BMP_WIDTH - 1) - ite; x >= 0 + ite; x--)
+  for (int x = (BMP_WIDTH - 2) - ite; x >= 0 + ite; x--)
   {
-    if (input[x][BMP_HEIGTH - ite][0] == 255)
+    if (input[x][BMP_HEIGTH - 1 - ite][0] == 255)
     {
-      cellDetected[*n].x = x;
-      cellDetected[*n].y = BMP_HEIGTH - ite;
       (*n)++;
+      cellDetected[*n].x = x;
+      cellDetected[*n].y = BMP_HEIGTH - 1 - ite;
     }
   }
-  for (int y = (BMP_HEIGTH - 1) - ite; y >= 0 + ite; y--)
+  for (int y = (BMP_HEIGTH - 2) - ite; y >= 1 + ite; y--)
   {
     if (input[ite][y][0] == 255)
     {
+      (*n)++;
       cellDetected[*n].x = ite;
       cellDetected[*n].y = y;
-      (*n)++;
     }
   }
   ite++;
@@ -126,6 +126,7 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
     cellDetectionOpt(input, n);
   }
 }
+ 
 vector temp;
 short int ds[4];
 void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *k)
