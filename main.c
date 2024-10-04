@@ -142,7 +142,7 @@ void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
         erodeBox(input);
       }
     }
-    write_bitmap(input, "example_inv.bmp");
+    //write_bitmap(input, "example_inv.bmp");
   }
   erosionOtp(input);
 }
@@ -202,8 +202,8 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
     }
     else if (!isEmpty(&stack))
     {
-      temp.x = pop(&stack);
       temp.y = pop(&stack);
+      temp.x = pop(&stack);
     }
     else
     {
