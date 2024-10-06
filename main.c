@@ -138,9 +138,9 @@ int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
       if (cellpositions[i][j] == 1){
         if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9){
           for (int m = -7; m < 7; m++) {
-          input_image[i + m][j][0] = 255;
-          input_image[i + m][j][1] = 0;
-          input_image[i + m][j][2] = 0;
+          input_image[i + m + 5][j][0] = 255;
+          input_image[i + m + 5][j][1] = 0;
+          input_image[i + m + 5][j][2] = 0;
           input_image[i][j + m][0] = 255;
           input_image[i][j + m][1] = 0;
           input_image[i][j + m][2] = 0;
