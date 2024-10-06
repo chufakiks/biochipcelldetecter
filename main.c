@@ -11,21 +11,6 @@
 #include <unistd.h>
 
 // #include<windows.h>
-
-// Function to invert pixels of an image (negative)
-void invert(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
-{
-  for (int x = 0; x < BMP_WIDTH; x++)
-  {
-    for (int y = 0; y < BMP_HEIGTH; y++)
-    {
-      for (int c = 0; c < BMP_CHANNELS; c++)
-      {
-        output_image[x][y][c] = 255 - input_image[x][y][c];
-      }
-    }
-  }
-}
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 
 unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -34,9 +19,11 @@ unsigned char for_eroding[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 unsigned char for_opt[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
 
 void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]);
-void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *n);
+void controller(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *n);
 void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
 void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS]);
+
+void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS]);
 void convertToGrey(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
 
@@ -70,6 +57,8 @@ void setBlack(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
     for (int y = 0; y < BMP_HEIGTH; y++)
     {
       input_image[x][y][0] = 0;
+      input_image[x][y][1] = 0;
+      input_image[x][y][2] = 0;
     }
   }
 }
@@ -78,6 +67,7 @@ vector cellDetected[(BMP_HEIGTH * 4) - 4];
 vector cellCenters[((1 / 2) * BMP_HEIGTH) * ((1 / 2) * BMP_HEIGTH)];
 Stack stack;
 short int ite = 0;
+int a = -1;
 int a = -1;
 int *n = &a;
 void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
@@ -103,14 +93,18 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
     }
   }
   for (int x = (BMP_WIDTH - 2) - ite; x >= 0 + ite; x--)
+  for (int x = (BMP_WIDTH - 2) - ite; x >= 0 + ite; x--)
   {
+    if (input[x][BMP_HEIGTH - 1 - ite][0] == 255)
     if (input[x][BMP_HEIGTH - 1 - ite][0] == 255)
     {
       (*n)++;
       cellDetected[*n].x = x;
       cellDetected[*n].y = BMP_HEIGTH - 1 - ite;
+      cellDetected[*n].y = BMP_HEIGTH - 1 - ite;
     }
   }
+  for (int y = (BMP_HEIGTH - 2) - ite; y >= 1 + ite; y--)
   for (int y = (BMP_HEIGTH - 2) - ite; y >= 1 + ite; y--)
   {
     if (input[ite][y][0] == 255)
@@ -123,27 +117,31 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
   ite++;
   if (ite < BMP_WIDTH / 2 + 1)
   {
-    cellDetectionOpt(input, n);
+    controller(input, n);
   }
 }
- 
+
+char foundwhite = 0;
+char seenwhite = 1;
+char nowhitefound = 1;
+
 vector temp;
 short int ds[4];
-void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *k)
+void controller(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *k)
 {
-  if (*k > 0)
+  for (; *k >= 0; (*k)--)
   {
-    for (; *k > 0; (*k)--)
+    if (input[cellDetected[*k].x][cellDetected[*k].y][0] == 255)
     {
-      if (input[cellDetected[*k].x][cellDetected[*k].y][0] == 255)
+      temp.x = cellDetected[*k].x;
+      temp.y = cellDetected[*k].y;
+      findGridSize(input);
+      while (nowhitefound)
       {
-        temp.x = cellDetected[*k].x;
-        temp.y = cellDetected[*k].y;
-        findGridSize(input);
         erodeBox(input);
+        cellDetectionOpt(input);
       }
     }
-    //write_bitmap(input, "example_inv.bmp");
   }
   erosionOtp(input);
 }
@@ -153,95 +151,210 @@ short int minx, maxx, miny, maxy;
 void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
 {
   *tempDone = 1;
-  minx, maxx = temp.x;
-  miny, maxy = temp.y;
-  while (*tempDone)
+  minx = temp.x;
+  maxx = temp.x;
+  miny = temp.y;
+  maxy = temp.y;
+  push(&stack, temp.x);
+  push(&stack, temp.y);
+  while (!isEmpty(&stack))
   {
-    if (input[temp.x - 1][temp.y][0] == 255 && temp.x > 0 && for_opt[temp.x - 1][temp.y][0] != 255)
+    temp.y = pop(&stack);
+    temp.x = pop(&stack);
+    if (temp.x > 0 && input[temp.x - 1][temp.y][0] == 255 && for_opt[temp.x - 1][temp.y][0] != 255)
     {
+      temp.x--;
       push(&stack, temp.x);
       push(&stack, temp.y);
-      for_opt[temp.x - 1][temp.y][0] = 255;
-      temp.x--;
+      for_opt[temp.x][temp.y][0] = 255;
       if (temp.x < minx)
       {
         minx = temp.x;
       }
     }
-    else if (input[temp.x][temp.y - 1][0] == 255 && temp.y > 0 && for_opt[temp.x][temp.y - 1][0] != 255)
+    if (temp.y > 0 && input[temp.x][temp.y - 1][0] == 255 && for_opt[temp.x][temp.y - 1][0] != 255)
     {
+      temp.y--;
       push(&stack, temp.x);
       push(&stack, temp.y);
-      for_opt[temp.x][temp.y - 1][0] = 255;
-      temp.y--;
+      for_opt[temp.x][temp.y][0] = 255;
       if (temp.y < miny)
       {
         miny = temp.y;
       }
     }
-    else if (input[temp.x + 1][temp.y][0] == 255 && temp.x < BMP_WIDTH - 1 && for_opt[temp.x + 1][temp.y][0] != 255)
+    if (temp.x < BMP_WIDTH - 1 && input[temp.x + 1][temp.y][0] == 255 && for_opt[temp.x + 1][temp.y][0] != 255)
     {
+      temp.x++;
       push(&stack, temp.x);
       push(&stack, temp.y);
-      for_opt[temp.x + 1][temp.y][0] = 255;
-      temp.x++;
+      for_opt[temp.x][temp.y][0] = 255;
       if (temp.x > maxx)
       {
         maxx = temp.x;
       }
     }
-    else if (input[temp.x][temp.y + 1][0] == 255 && temp.y < BMP_HEIGTH - 1 && for_opt[temp.x][temp.y + 1][0] != 255)
+    if (temp.y < BMP_HEIGTH - 1 && input[temp.x][temp.y + 1][0] == 255 && for_opt[temp.x][temp.y + 1][0] != 255)
     {
+      temp.y++;
       push(&stack, temp.x);
       push(&stack, temp.y);
-      for_opt[temp.x][temp.y + 1][0] = 255;
-      temp.y++;
+      for_opt[temp.x][temp.y][0] = 255;
       if (temp.y > maxy)
       {
         maxy = temp.y;
       }
     }
-    else if (!isEmpty(&stack))
-    {
-      temp.y = pop(&stack);
-      temp.x = pop(&stack);
-    }
-    else
-    {
-      *tempDone = 0;
-      ds[0] = minx;
-      ds[1] = maxx;
-      ds[2] = miny;
-      ds[3] = maxy;
-    }
   }
+  ds[0] = minx;
+  ds[1] = maxx;
+  ds[2] = miny;
+  ds[3] = maxy;
 }
-void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
+
+int cellCount = 0;
+
+void cellDetectionOpt(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 {
+  nowhitefound = 0;
   for (int mix = ds[0]; mix <= ds[1]; mix++)
   {
     for (int miy = ds[2]; miy <= ds[3]; miy++)
-    {
-      if (for_opt[mix][miy][0] == 255)
+    { 
+      foundwhite = 0; seenwhite = 0;
+      if (!(mix + 2 >= BMP_HEIGTH || mix - 1 < 0 || miy + 2 >= BMP_HEIGTH || miy - 1 < 0))
       {
-        for (int i = -1; i <= 1; i++)
-        { // look at 3x3 neighburs
-          for (int j = -1; j <= 1; j++)
+        for (int i = mix; i < mix + 3; i++)
+          if (input[i][miy - 1][0] == 255)
           {
-            if (mix + i >= ds[1] || mix + i < ds[0] || miy + j >= ds[3] || miy + j < ds[2])
+            foundwhite = 1; nowhitefound = 1;
+            break;
+          }
+        for (int i = miy; i < miy + 3; i++)
+          if (input[mix + 2][i][0] == 255 && !foundwhite)
+          {
+            foundwhite = 1; nowhitefound = 1;
+            break;
+          }
+        for (int i = mix - 1; i < mix + 2; i++)
+          if (input[i][miy + 2][0] == 255 && !foundwhite)
+          {
+            foundwhite = 1; nowhitefound = 1;
+            break;
+          }
+        for (int i = miy - 1; i < miy + 2; i++)
+          if (input[mix - 1][i][0] == 255 && !foundwhite)
+          {
+            foundwhite = 1; nowhitefound = 1;
+            break;
+          }
+      }
+      if (!foundwhite)
+      {
+        if (input[mix][miy][0] == 255)
+        {
+          if (!seenwhite)
+          {
+            cellCenters[cellCount].x = mix;
+            cellCenters[cellCount].y = miy;
+            cellCount++;
+          }
+          seenwhite = 1; nowhitefound = 1;
+          input[mix][miy][0] = 0;
+          input[mix][miy][1] = 0;
+          input[mix][miy][2] = 0;
+        }
+        if (input[mix + 1][miy][0] == 255)
+        {
+          if (!seenwhite)
+          {
+            cellCenters[cellCount].x = mix + 1;
+            cellCenters[cellCount].y = miy;
+            cellCount++;
+          }
+          seenwhite = 1; nowhitefound = 1;
+          input[mix + 1][miy][0] = 0;
+          input[mix + 1][miy][1] = 0;
+          input[mix + 1][miy][2] = 0;
+        }
+        if (input[mix][miy + 1][0] == 255)
+        {
+          if (!seenwhite)
+          {
+            cellCenters[cellCount].x = mix;
+            cellCenters[cellCount].y = miy + 1;
+            cellCount++;
+          }
+          seenwhite = 1; nowhitefound = 1;
+          input[mix][miy + 1][0] = 0;
+          input[mix][miy + 1][1] = 0;
+          input[mix][miy + 1][2] = 0;
+        }
+        if (input[mix + 1][miy + 1][0] == 255)
+        {
+          if (!seenwhite)
+          {
+            cellCenters[cellCount].x = mix + 1;
+            cellCenters[cellCount].y = miy + 1;
+            cellCount++;
+          }
+          seenwhite = 1; nowhitefound = 1;
+          input[mix + 1][miy + 1][0] = 0;
+          input[mix + 1][miy + 1][1] = 0;
+          input[mix + 1][miy + 1][2] = 0;
+        }
+      }
+    }
+  }
+}
+
+
+vector toDest[950];
+short int des = 0;
+short int *top = &des;
+void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
+{
+
+  {
+    for (int mix = ds[0]; mix <= ds[1]; mix++)
+    {
+
+      for (int miy = ds[2]; miy <= ds[3]; miy++)
+      {
+        printf("ere \n");
+        if (input[mix][miy][0] == 255)
+        {
+
+          for (int i = -1; i <= 1; i++)
+          { // look at 3x3 neighburs
+            for (int j = -1; j <= 1; j++)
             {
-              continue;
-            }
-            else if (for_opt[mix + i][miy + j][0] != 255 && i != 0 && j != 0)
-            {
-              for_opt[mix][miy][0] = 0;
-              input[mix][miy][0] = 0;
-              input[mix][miy][1] = 0;
-              input[mix][miy][2] = 0;
+              if (mix + i >= BMP_HEIGTH || mix + i < 0 || miy + j >= BMP_HEIGTH || miy + j < 0)
+              {
+
+                continue;
+              }
+              else if (for_opt[mix + i][miy + j][0] == 0 && ((i != 0 && j == 0) || (i == 0 && j != 0)))
+              {
+
+                if (*top == 0 || *top > 1 && !(toDest[*top - 1].x == mix && toDest[*top - 1].y == miy))
+                {
+                  toDest[*top].x = mix;
+                  toDest[*top].y = miy;
+                  (*top)++;
+                }
+              }
             }
           }
         }
       }
+    }
+    for (; *top > 0; (*top)--)
+    {
+      input[toDest[*top - 1].x][toDest[*top - 1].y][0] = 0;
+      input[toDest[*top - 1].x][toDest[*top - 1].y][1] = 0;
+      input[toDest[*top - 1].x][toDest[*top - 1].y][2] = 0;
+      for_opt[toDest[*top - 1].x][toDest[*top - 1].y][0] = 0;
     }
   }
 }
@@ -426,6 +539,7 @@ int main(int argc, char **argv)
    }
  */
   erosionOtp(output_image_real);
+  printf("%d", cellCount);
   write_bitmap(output_image_real, argv[2]);
   /*
    drawredcrosses(input_image_real, cellpositions);
