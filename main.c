@@ -122,7 +122,7 @@ void erosionOtp(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS])
 
 char foundwhite = 0;
 char seenwhite = 1;
-char nowhitefound = 0;
+char nowhitefound = 1;
 
 vector temp;
 short int ds[4];
@@ -135,7 +135,7 @@ void controller(unsigned char input[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int *k
       temp.x = cellDetected[*k].x;
       temp.y = cellDetected[*k].y;
       findGridSize(input);
-      while (seenwhite)
+      while (nowhitefound)
       {
         erodeBox(input);
         cellDetectionOpt(input);
