@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include "cbmp.h"
 #include <unistd.h>
+#include <time.h>
+
+clock_t start, end;
+double cpu_time_used;
 
   //Declaring the array to store the image (unsigned char = unsigned 8 bit)
   unsigned char input_image_real[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
@@ -166,6 +170,8 @@ int main(int argc, char** argv)
   //argv[2] is the second command line argument (output image)
 
   //Checking that 2 arguments are passed
+  start = clock();
+
   if (argc != 3)
   {
       fprintf(stderr, "Usage: %s <output file path> <output file path>\n", argv[0]);
@@ -192,11 +198,15 @@ int main(int argc, char** argv)
       erode(for_eroding, output_image_real, cellpositions);
       write_bitmap(output_image_real, argv[2]);
     }
-    sleep(1);
   }
 
   drawredcrosses(input_image_real, cellpositions);
   write_bitmap(input_image_real, argv[2]);
+
+
+  end = clock();
+  cpu_time_used = end - start;
+  printf("Total time: %f ms\n", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
   printf("%d", totalcount);
   printf("Done!\n");
   return 0;
