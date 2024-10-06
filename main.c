@@ -205,6 +205,5 @@ int main(int argc, char** argv)
   cpu_time_used = end - start;
   printf("Total time: %f ms\n", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
   printf("%d", totalcount);
-  printf("Done!\n");
   return 0;
 };
