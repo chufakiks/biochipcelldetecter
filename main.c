@@ -136,7 +136,6 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
     }
   }
   totalcount += count;
-  printf("Cells found during erode: %d\n", count);
 }
 
 void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
