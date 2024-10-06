@@ -65,6 +65,8 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
   }
       celldetection(output_image, cellpositions);
   }
+
+int totalcount = 0;
 void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH])
 {
   int count = 0;
@@ -131,17 +133,15 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
       }
     }
   }
+  totalcount += count;
   printf("Cells found during erode: %d\n", count);
 }
-
-short int cellcounter;
 
 void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
 int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
   for (int i = 0; i < BMP_WIDTH; i++){
     for (int j = 0; j < BMP_HEIGTH; j++){
       if (cellpositions[i][j] == 1){
-        cellcounter++;
         if (i < BMP_WIDTH - 9 && i > 9 && j < BMP_HEIGTH - 9 && j > 9){
           for (int m = -7; m < 7; m++) {
             input_image[i + m + 5][j + 5][0] = 255;
@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 
   drawredcrosses(input_image_real, cellpositions);
   write_bitmap(input_image_real, argv[2]);
-  printf("%d", cellcounter);
+  printf("%d", totalcount);
   printf("Done!\n");
   return 0;
 };
