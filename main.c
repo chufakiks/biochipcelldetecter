@@ -190,7 +190,7 @@ int main(int argc, char** argv)
   int cellpositions[BMP_WIDTH][BMP_HEIGTH];
 
   for (int i = 0; i < iterations; i++) {
-    printf("iterattions for loops \n");
+    
     if (i%2 == 0) {
       erode(output_image_real, for_eroding, cellpositions);
       write_bitmap(for_eroding, argv[2]);
