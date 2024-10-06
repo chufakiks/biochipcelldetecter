@@ -210,7 +210,7 @@ void findGridSize(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
       }
     }
   }
-  write_bitmap(for_opt, "example_bmp.bmp");
+  //write_bitmap(for_opt, "example_bmp.bmp");
   ds[0] = minx;
   ds[1] = maxx;
   ds[2] = miny;
@@ -229,12 +229,12 @@ void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
   *tempDone2 = 1;
   while (*tempDone2)
   {
-    write_bitmap(for_opt, "example_inv.bmp");
-    sleep(10);
+    //write_bitmap(for_opt, "example_inv.bmp");
+    //sleep(10);
     for (int mix = ds[0]; mix <= ds[1]; mix++)
     {
-      printf("he");
-      sleep(1);
+      //printf("he");
+      //sleep(1);
 
       for (int miy = ds[2]; miy <= ds[3]; miy++)
       {
@@ -248,25 +248,26 @@ void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
             {
               if (mix + i >= BMP_HEIGTH || mix + i < 0 || miy + j >= BMP_HEIGTH || miy + j < 0)
               {
+                (*blackNeighbours)++;
                 continue;
               }
               else if (for_opt[mix + i][miy + j][0] == 0 && ((i != 0 && j == 0) || (i == 0 && j != 0)))
               {
+
                 (*blackNeighbours)++;
-                input[mix][miy][0] = 0;
-                input[mix][miy][1] = 0;
-                input[mix][miy][2] = 0;
+                
                 if (*top == 0 || *top > 1 && !(toDest[*top - 1].x == mix && toDest[*top - 1].y == miy))
                 {
                   toDest[*top].x = mix;
                   toDest[*top].y = miy;
                   (*top)++;
                 }
+                
               }
             }
           }
           printf("%d", *blackNeighbours);
-          sleep(1);
+          //sleep(1);
           if (*blackNeighbours == 4)
           {
             *tempDone2 = 0;
@@ -278,7 +279,10 @@ void erodeBox(unsigned char input[BMP_HEIGTH][BMP_WIDTH][BMP_CHANNELS])
     }
     for (; *top > 0; (*top)--)
     {
-      for_opt[toDest[*top - 1].x][toDest[*top - 1].y][0] == 0;
+      input[toDest[*top - 1].x][toDest[*top - 1].y][0] = 0;
+      input[toDest[*top - 1].x][toDest[*top - 1].y][1] = 0;
+      input[toDest[*top - 1].x][toDest[*top - 1].y][2] = 0;
+      for_opt[toDest[*top - 1].x][toDest[*top - 1].y][0] = 0;
     }
   }
 }
