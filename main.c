@@ -41,9 +41,9 @@ double cpu_time_used;
     }
   }
 
-void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]);
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char cellpositions[BMP_WIDTH][BMP_HEIGTH]);
 
-void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
+void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char cellpositions[BMP_WIDTH][BMP_HEIGTH]){
   for (int x = 1; x < BMP_WIDTH - 1; x++){
     for (int y = 1; y < BMP_HEIGTH - 1; y++) {
       if(input_image[x][y][0] == 255) {
@@ -71,7 +71,7 @@ void erode(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsig
   }
 
 int totalcount = 0;
-void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], int cellpositions[BMP_WIDTH][BMP_HEIGTH])
+void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], unsigned char cellpositions[BMP_WIDTH][BMP_HEIGTH])
 {
   int count = 0;
   for (int x = 4; x < BMP_WIDTH - 4; x++)
@@ -138,11 +138,10 @@ void celldetection(unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNEL
     }
   }
   totalcount += count;
-  printf("Cells found during erode: %d\n", count);
 }
 
 void drawredcrosses(unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS], 
-int cellpositions[BMP_WIDTH][BMP_HEIGTH]){
+unsigned char cellpositions[BMP_WIDTH][BMP_HEIGTH]){
   for (int i = 0; i < BMP_WIDTH; i++){
     for (int j = 0; j < BMP_HEIGTH; j++){
       if (cellpositions[i][j] == 1){
@@ -187,16 +186,14 @@ int main(int argc, char** argv)
   convertToGrey(input_image_real, output_image_real);
   int iterations = 15;
 
-  int cellpositions[BMP_WIDTH][BMP_HEIGTH];
+  unsigned char cellpositions[BMP_WIDTH][BMP_HEIGTH];
 
   for (int i = 0; i < iterations; i++) {
     
     if (i%2 == 0) {
       erode(output_image_real, for_eroding, cellpositions);
-      write_bitmap(for_eroding, argv[2]);
     } else {
       erode(for_eroding, output_image_real, cellpositions);
-      write_bitmap(output_image_real, argv[2]);
     }
   }
 
